@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Text Summarizer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
+</head>
+
+<body class="p-4">
+
+<div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
+  <h1 class="text-4xl font-extrabold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+    AI Text Summarizer
+  </h1>
+
+  <p class="text-gray-600 text-center mb-8">
+    Paste your text below and let AI do the heavy lifting 🚀
+  </p>
+
+  <textarea
+    id="inputText"
+    rows="8"
+    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+    placeholder="Paste your text here..."
+  ></textarea>
+
+  <button
+    id="summarizeBtn"
+    class="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl shadow-lg"
+  >
+    Summarize
+  </button>
+  <div id="loadingIndicator" class="hidden text-center mt-4 text-blue-600">
+    Summarizing...
+  </div>
+  <div
+    id="summaryOutput"
+    class="mt-6 p-5 bg-gray-50 border rounded-xl whitespace-pre-wrap text-gray-800"
+  >
+    <p class="italic text-gray-400">Your summary will appear here.</p>
+  </div>
+  <div
+    id="messageBox"
+    class="hidden mt-4 p-3 rounded bg-red-100 text-red-700"
+  ></div>
+</div>
+
+<script>
+const inputTextarea = document.getElementById("inputText");
+const summarizeBtn = document.getElementById("summarizeBtn");
+const summaryOutput = document.getElementById("summaryOutput");
+const loadingIndicator = document.getElementById("loadingIndicator");
+const messageBox = document.getElementById("messageBox");
+
+function showMessage(message) {
+  messageBox.textContent = message;
+  messageBox.classList.remove("hidden");
+}
+
+summarizeBtn.addEventListener("click", async () => {
+  const text = inputTextarea.value.trim();
+
+  if (!text) {
+    showMessage("Please enter some text");
+    return;
+  }
+
+  messageBox.classList.add("hidden");
+  summaryOutput.textContent = "";
+  loadingIndicator.classList.remove("hidden");
+
+  try {
+    const response = await fetch("http://localhost:5000/summarize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await response.json();
+    summaryOutput.textContent = data.summary;
+
+  } catch (err) {
+    showMessage("Server error. Try again later.");
+  } finally {
+    loadingIndicator.classList.add("hidden");
+  }
+});
+</script>
+
+</body>
+</html>
